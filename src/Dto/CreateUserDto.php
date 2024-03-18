@@ -18,6 +18,5 @@ class CreateUserDto
         public readonly string $plainPassword
     )
     {
-
     }
 }

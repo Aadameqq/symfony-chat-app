@@ -13,6 +13,8 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/user')]
 class UserController extends AbstractController
@@ -42,5 +44,15 @@ class UserController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json(['message' => "Account Created"], Response::HTTP_CREATED);
+    }
+
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[Route('',methods: ["GET"])]
+    public function get(#[CurrentUser] User $user){
+        return $this->json([
+            'id'=>$user->getId(),
+            'username'=>$user->getUsername(),
+            'roles'=>$user->getRoles()
+        ]);
     }
 }

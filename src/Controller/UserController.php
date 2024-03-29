@@ -20,7 +20,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class UserController extends AbstractController
 {
 
-
     public function __construct(private readonly UserPasswordHasherInterface $passwordHasher, private readonly EntityManagerInterface $entityManager, private readonly UserRepository $userRepo)
     {
     }

@@ -10,21 +10,21 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class UserControllerTest extends WebTestCase
 {
 
-    public function testCreate_WhenUserWithGivenUsernameAlreadyExists_ShouldReturnConflictAndNotCreateNewUserInDb(): void
+    public function testCreate_WhenUserWithGivenUsernameAlreadyExists_ShouldReturnConflictHttpStatusAndNotCreateNewUserInDb(): void
     {
         $client = static::createClient();
-        $testUsername = "username";
-        $testUser = new User();
-        $testUser->setUsername($testUsername);
-        $testUser->setPassword("pwd");
-        $entityManager = $this->getEntityManager();
-        $entityManager->persist($testUser);
+        $username = "username";
+        $user = new User();
+        $user->setUsername($username);
+        $user->setPassword("password");
+        $entityManager = static::getEntityManager();
+        $entityManager->persist($user);
         $entityManager->flush();
-        $userRepo = $this->getUserRepository();
+        $userRepo = static::getUserRepository();
 
         $client->jsonRequest('POST','/user', parameters: [
-            "username"=>$testUsername,
-            "plainPassword"=>"validpassword"
+            "username"=>$username,
+            "plainPassword"=>"password123456"
         ]);
 
         $actualUsersCount = $userRepo->count();
@@ -33,17 +33,21 @@ class UserControllerTest extends WebTestCase
     }
 
 
-    public function testCreate_CreatesUser()
+    public function testCreate_ShouldCreateUserInDbAndReturnCreatedHttpStatus()
     {
         $client = static::createClient();
-        $testUsername = "username";
+        $username = "username";
+        $userRepo = static::getUserRepository();
+
 
         $client->jsonRequest('POST','/user', parameters: [
-            "username"=>$testUsername,
+            "username"=>$username,
             "plainPassword"=>"validpassword"
         ]);
 
+        $actualUser = $userRepo->findOneBy(["username"=>$username]);
         $this->assertResponseStatusCodeSame(201);
+        $this->assertNotNull($actualUser);
     }
 
     private static function getEntityManager():EntityManagerInterface{
